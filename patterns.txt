@@ -1,0 +1,1 @@
+regex:sk_(test|live)_[0-9A-Za-z]{20,}==>REDACTED_STRIPE_KEY

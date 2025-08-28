@@ -1,0 +1,30 @@
+DirectoryIndex index.php
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /interior-erp/public/
+
+    # Allow Authorization header to pass through (for APIs)
+    RewriteCond %{HTTP:Authorization} .+
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%0]
+
+    # If the request is for an existing file or directory, serve it
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Otherwise route to index.php (removes index.php from URLs)
+    RewriteRule ^(.*)$ index.php/$1 [L]
+</IfModule>
+
+# Block access to hidden/sensitive files
+<FilesMatch "^(\.|composer\.|env|README|phpunit|build)">
+  Require all denied
+  Satisfy All
+</FilesMatch>
+
+# Deny access to CI internals if exposed under public/
+RedirectMatch 404 ^/system/.*$
+RedirectMatch 404 ^/app/.*$
+RedirectMatch 404 ^/writable/.*$

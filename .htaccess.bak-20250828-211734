@@ -1,0 +1,31 @@
+# Route everything to public/ while allowing direct access to real files/dirs
+RewriteEngine On
+
+# IMPORTANT: your app lives under /interior-erp/
+RewriteBase /interior-erp/
+
+# If the request is already for /public, let it pass
+RewriteRule ^public/ - [L]
+
+# If file or directory exists in root, serve it
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Otherwise, forward to public/
+RewriteRule ^(.*)$ public/$1 [L]
+
+# ---- Security fences (belt & suspenders) ----
+# Never serve .env (in case someone accidentally uploads it here)
+<Files ".env">
+  Require all denied
+  Satisfy All
+</Files>
+
+# Block git and other VCS folders if present
+RedirectMatch 404 /\\.git(/|$)
+RedirectMatch 404 /\\.hg(/|$)
+RedirectMatch 404 /\\.svn(/|$)
+
+# Prevent directory listings (if host overrides Options)
+Options -Indexes
